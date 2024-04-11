@@ -9,21 +9,38 @@
       @drop.prevent="dropBoard($event, board)"
       @dragover.prevent="dragOver($event)"
     >
-      <h1 class="board-title">{{ board.title }}</h1>
+      <div class="title-container">
+        <h1 class="board-title">{{ board.title }}</h1>
+        <button class="plus-button" @click="addItem(board)">+</button>
+      </div>
       <hr />
+      <p v-if="board.items.length === 0">Нет активных задач</p>
       <ul>
         <li
           class="board-item"
           v-for="item in board.items"
           :key="item.id"
-          :draggable="true"
+          :draggable="!isEditingItem(item)"
+          @dblclick="editItem(item, board)"
           @dragover.prevent="dragOver($event)"
           @dragleave="dragLeave($event)"
           @dragstart="dragStart($event, board, item)"
           @dragend="dragEnd($event)"
           @drop.prevent="drop($event, board, item)"
         >
-          {{ item.title }}
+          <span v-if="!isEditingItem(item)">
+            {{ item.title }}
+          </span>
+          <input
+            v-show="isEditingItem(item)"
+            v-model="item.title"
+            :ref="`item-input-${item.id}`"
+            @keydown.enter="stopEditing"
+            @blur="stopEditing"
+          />
+          <button class="remove-button" @click="removeItem(item, board)">
+            &times;
+          </button>
         </li>
       </ul>
     </li>
@@ -85,6 +102,8 @@ export default {
       currentBoard: null,
       currentItem: null,
       lastDraggedOverElement: null,
+      newItemTitle: "",
+      editingItem: null,
     };
   },
   methods: {
@@ -118,27 +137,68 @@ export default {
       }
     },
     drop(event, board, item) {
-      event.stopPropagation();
-      this.currentBoard.items = this.currentBoard.items.filter(
-        (item) => item !== this.currentItem
-      );
-      const dropIndex = board.items.indexOf(item);
-      board.items.splice(dropIndex + 1, 0, this.currentItem);
-      this.boards = this.boards.map((b) => {
-        if (b.id === board.id) {
-          return board;
-        }
-        if (b.id === this.currentBoard.id) {
-          return this.currentBoard;
-        }
-        return b;
-      });
+      if (this.currentItem) {
+        event.stopPropagation();
+        this.currentBoard.items = this.currentBoard.items.filter(
+          (item) => item !== this.currentItem
+        );
+        const dropIndex = board.items.indexOf(item);
+        board.items.splice(dropIndex + 1, 0, this.currentItem);
+        this.boards = this.boards.map((b) => {
+          if (b.id === board.id) {
+            return board;
+          }
+          if (b.id === this.currentBoard.id) {
+            return this.currentBoard;
+          }
+          return b;
+        });
+        this.currentItem = null;
+      }
     },
     dropBoard(event, board) {
-      this.currentBoard.items = this.currentBoard.items.filter(
-        (item) => item !== this.currentItem
-      );
-      board.items.push(this.currentItem);
+      if (this.currentItem) {
+        this.currentBoard.items = this.currentBoard.items.filter(
+          (item) => item !== this.currentItem
+        );
+        board.items.push(this.currentItem);
+        this.currentItem = null;
+      }
+    },
+    isEditingItem(item) {
+      return this.editingItem === item;
+    },
+    editItem(item) {
+      this.editingItem = item;
+      this.$nextTick(() => {
+        const input = this.$refs[`item-input-${item.id}`];
+        console.log(input);
+        if (input.length !== 0) {
+          input[0].focus();
+        }
+      });
+    },
+    stopEditing() {
+      this.editingItem = null;
+    },
+    removeItem(item, board) {
+      const index = board.items.indexOf(item);
+      if (index !== -1) {
+        board.items.splice(index, 1);
+      }
+      if (this.isEditingItem(item)) {
+        this.stopEditing();
+      }
+    },
+    addItem(board) {
+      const newTitle = prompt("Новая задача:");
+      if (newTitle) {
+        const newItem = {
+          id: Date.now(),
+          title: newTitle,
+        };
+        board.items.push(newItem);
+      }
     },
   },
 };
@@ -163,7 +223,9 @@ export default {
 }
 .page-title {
   text-align: center;
+  user-select: none;
 }
+
 .board-container {
   list-style-type: none;
   display: flex;
@@ -172,20 +234,53 @@ export default {
   flex-grow: 1;
   flex-wrap: wrap;
 }
+
+.title-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  &:hover .plus-button {
+    display: inline-flex;
+  }
+}
+
+.plus-button {
+  width: 30px;
+  height: 30px;
+  font-size: 28px;
+  line-height: 1;
+  border: 1px solid #ccc;
+  background-color: #f8f8f8;
+  border-radius: 50%;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  transition: background-color 0.3s;
+  &:hover {
+    background-color: #e8e8e8;
+  }
+  &:active {
+    background-color: #707070;
+  }
+}
+
 .board {
   min-width: 270px;
   margin: 10px;
   padding: 10px;
   min-height: 100px;
-  .board-title {
-    margin: 0;
-    text-align: center;
-  }
   ul {
     list-style: none;
     padding: 0;
   }
 }
+
+.board-title {
+  user-select: none;
+}
+
 .board-item {
   padding: 5px;
   margin: 5px;
@@ -194,6 +289,33 @@ export default {
   border-radius: 10px;
   cursor: grab;
   width: 239px;
+  min-height: 36px;
+  display: flex;
+  justify-content: space-between;
+
+  & input {
+    background: transparent;
+    border: none;
+    width: 100%;
+    font-size: 17px;
+    color: rgb(255, 251, 0);
+    line-height: 1.6;
+  }
+
+  .remove-button {
+    display: none;
+    width: 25px;
+    height: 25px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 25px;
+    color: red;
+  }
+
+  &:hover .remove-button {
+    display: block;
+  }
 
   &:active {
     cursor: grabbing;
