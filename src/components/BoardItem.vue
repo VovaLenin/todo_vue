@@ -1,21 +1,19 @@
 <template>
-  <div>
+  <li
+    class="board"
+    @drop.prevent="dropBoard($event, board)"
+    @dragover.prevent="dragOver($event)"
+  >
     <div class="title-container">
       <h1 class="board-title">{{ board.title }}</h1>
-      <button class="plus-button" @click="$emit('addItem', board)">+</button>
+      <button class="plus-button" @click="addItem(board)">+</button>
     </div>
     <hr />
     <p v-if="board.items.length === 0">Нет активных задач</p>
-    <!-- Для каждого элемента отображаем TaskItem компонент -->
-    <task-item
-      v-for="item in board.items"
-      :key="item.id"
-      :item="item"
-      :board="board"
-      @editItem="editItem"
-      @removeItem="removeItem"
-    ></task-item>
-  </div>
+    <ul>
+      <TaskItem v-for="item in board.items" :key="item.id" />
+    </ul>
+  </li>
 </template>
 
 <script>
@@ -26,7 +24,61 @@ export default {
     TaskItem,
   },
   props: ["board"],
-  // методы editItem, removeItem переместить сюда из App
 };
 </script>
-<!-- стили... -->
+
+<style>
+.title-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.title-container:hover .plus-button {
+  display: inline-flex;
+}
+
+.title-container:hover .plus-button {
+  display: inline-flex;
+}
+
+.plus-button {
+  width: 30px;
+  height: 30px;
+  font-size: 28px;
+  line-height: 1;
+  border: 1px solid #ccc;
+  background-color: #f8f8f8;
+  border-radius: 50%;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  transition: background-color 0.3s;
+}
+
+.plus-button:hover {
+  background-color: #e8e8e8;
+}
+
+.plus-button:active {
+  background-color: #707070;
+}
+
+.board {
+  min-width: 270px;
+  margin: 10px;
+  padding: 10px;
+  min-height: 100px;
+}
+
+.board ul {
+  list-style: none;
+  padding: 0;
+}
+
+.board-title {
+  user-select: none;
+}
+</style>

@@ -1,58 +1,14 @@
 <template>
   <h1 class="page-title">Список дел</h1>
-  <ul class="board-container">
-    <li
-      class="board"
-      v-for="board in boards"
-      :key="board.id"
-      @drop.prevent="dropBoard($event, board)"
-      @dragover.prevent="dragOver($event)"
-    >
-      <div class="title-container">
-        <h1 class="board-title">{{ board.title }}</h1>
-        <button class="plus-button" @click="addItem(board)">+</button>
-      </div>
-      <hr />
-      <p v-if="board.items.length === 0">Нет активных задач</p>
-      <ul>
-        <li
-          class="board-item"
-          v-for="item in board.items"
-          :key="item.id"
-          :draggable="!isEditingItem(item)"
-          @dblclick="editItem(item, board)"
-          @dragover.prevent="dragOver($event)"
-          @dragleave="dragLeave($event)"
-          @dragstart="dragStart($event, board, item)"
-          @dragend="dragEnd($event)"
-          @drop.prevent="drop($event, board, item)"
-        >
-          <span v-if="!isEditingItem(item)">
-            {{ item.title }}
-          </span>
-          <TaskInput
-            v-show="isEditingItem(item)"
-            :ref="`item-${item.id}`"
-            v-model="item.title"
-            :item="item"
-            @is-editing-item="isEditingItem(item)"
-            @stop-editing="stopEditing()"
-          />
-          <button class="remove-button" @click="removeItem(item, board)">
-            &times;
-          </button>
-        </li>
-      </ul>
-    </li>
-  </ul>
+  <BoardList />
 </template>
 
 <script>
-import TaskInput from "@/components/TaskInput";
+import BoardList from "@/components/BoardList";
 
 export default {
   components: {
-    TaskInput,
+    BoardList,
   },
   data() {
     return {
@@ -145,23 +101,22 @@ export default {
       }
     },
     isEditingItem(item) {
-      console.log(this.editingItem === item);
       return this.editingItem === item;
     },
     editItem(item) {
       this.editingItem = item;
-      console.log(this.editingItem);
-      // const parentRef = this.$refs[`item-${item.id}`];
-      // if (parentRef) {
-      //   this.$nextTick(() => {
-      //     const inputRef = parentRef.$refs[`item-input-${item.id}`];
-      //     if (inputRef) {
-      //       // Делаем что-то с инпутом
-      //       // Например, устанавливаем фокус
-      //       inputRef.focus();
-      //     }
-      //   });
-      // }
+      const parentRef = this.$refs[`item-${item.id}`].target;
+      console.log(parentRef);
+      if (parentRef) {
+        this.$nextTick(() => {
+          const inputRef = parentRef.$refs[`item-input-${item.id}`];
+          if (inputRef) {
+            // Делаем что-то с инпутом
+            // Например, устанавливаем фокус
+            inputRef.focus();
+          }
+        });
+      }
     },
     stopEditing() {
       this.editingItem = null;
@@ -196,7 +151,6 @@ export default {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  /* outline: 1px solid red; */
 }
 
 #app {
@@ -212,110 +166,5 @@ export default {
 .page-title {
   text-align: center;
   user-select: none;
-}
-
-.board-container {
-  list-style-type: none;
-  display: flex;
-  justify-content: space-around;
-  height: 100%;
-  flex-grow: 1;
-  flex-wrap: wrap;
-}
-
-.title-container {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.title-container:hover .plus-button {
-  display: inline-flex;
-}
-
-.title-container:hover .plus-button {
-  display: inline-flex;
-}
-
-.plus-button {
-  width: 30px;
-  height: 30px;
-  font-size: 28px;
-  line-height: 1;
-  border: 1px solid #ccc;
-  background-color: #f8f8f8;
-  border-radius: 50%;
-  cursor: pointer;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  user-select: none;
-  transition: background-color 0.3s;
-}
-
-.plus-button:hover {
-  background-color: #e8e8e8;
-}
-
-.plus-button:active {
-  background-color: #707070;
-}
-
-.board {
-  min-width: 270px;
-  margin: 10px;
-  padding: 10px;
-  min-height: 100px;
-}
-
-.board ul {
-  list-style: none;
-  padding: 0;
-}
-
-.board-title {
-  user-select: none;
-}
-
-.board-item {
-  padding: 5px;
-  margin: 5px;
-  background-color: rgba(0, 0, 255, 0.5);
-  color: #fff;
-  border-radius: 10px;
-  cursor: grab;
-  width: 239px;
-  min-height: 36px;
-  display: flex;
-  justify-content: space-between;
-}
-
-.board-item input {
-  display: block;
-  background: transparent;
-  border: none;
-  width: 100%;
-  font-size: 17px;
-  color: rgb(255, 251, 0);
-  line-height: 1.6;
-}
-
-.remove-button {
-  display: none;
-  width: 25px;
-  height: 25px;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  font-size: 25px;
-  color: red;
-}
-
-.board-item:hover .remove-button {
-  display: block;
-}
-
-.board-item:active {
-  cursor: grabbing;
 }
 </style>
