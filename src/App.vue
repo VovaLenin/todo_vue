@@ -1,6 +1,12 @@
 <template>
   <h1 class="page-title">Список дел</h1>
-  <BoardList />
+  <BoardList
+    :boards="boards"
+    @update:modelValue="updateTitle($event)"
+    @edit-item="editItem"
+    @stop-editing="stopEditing"
+    @is-editing-item="isEditingItem"
+  />
 </template>
 
 <script>
@@ -42,7 +48,7 @@ export default {
     };
   },
   methods: {
-    dragStart(event, board, item) {
+    dragStart(board, item) {
       this.currentBoard = board;
       this.currentItem = item;
     },
@@ -91,7 +97,7 @@ export default {
         this.currentItem = null;
       }
     },
-    dropBoard(event, board) {
+    dropBoard(board) {
       if (this.currentItem) {
         this.currentBoard.items = this.currentBoard.items.filter(
           (item) => item !== this.currentItem
@@ -105,18 +111,6 @@ export default {
     },
     editItem(item) {
       this.editingItem = item;
-      const parentRef = this.$refs[`item-${item.id}`].target;
-      console.log(parentRef);
-      if (parentRef) {
-        this.$nextTick(() => {
-          const inputRef = parentRef.$refs[`item-input-${item.id}`];
-          if (inputRef) {
-            // Делаем что-то с инпутом
-            // Например, устанавливаем фокус
-            inputRef.focus();
-          }
-        });
-      }
     },
     stopEditing() {
       this.editingItem = null;
@@ -139,6 +133,9 @@ export default {
         };
         board.items.push(newItem);
       }
+    },
+    updateTitle(event) {
+      console.log(event);
     },
   },
 };

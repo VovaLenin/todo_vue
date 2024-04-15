@@ -2,27 +2,24 @@
   <li
     class="board-item"
     :draggable="!isEditingItem(item)"
-    @dblclick="editItem(item, board)"
+    @dblclick="editItem"
     @dragover.prevent="dragOver($event)"
     @dragleave="dragLeave($event)"
-    @dragstart="dragStart($event, board, item)"
+    @dragstart="dragStart(board, item)"
     @dragend="dragEnd($event)"
-    @drop.prevent="drop($event, board, item)"
+    @drop.stop.prevent="drop($event, board, item)"
   >
     <span v-if="!isEditingItem(item)">
       {{ item.title }}
     </span>
     <TaskInput
       v-show="isEditingItem(item)"
-      :ref="`item-${item.id}`"
-      :item="item"
-      v-model="item.title"
-      @is-editing-item="isEditingItem(item)"
-      @stop-editing="stopEditing()"
+      :modelValue="modelValue"
+      @update:modelValue="$emit('update:modelValue', $event)"
+      :id="item.id"
+      @stop-editing="stopEditing"
     />
-    <button class="remove-button" @click="removeItem(item, board)">
-      &times;
-    </button>
+    <button class="remove-button" @click="removeItem(item)">&times;</button>
   </li>
 </template>
 
@@ -30,22 +27,26 @@
 import TaskInput from "@/components/TaskInput";
 
 export default {
-  props: ["item", "board"],
-  components: [TaskInput],
+  components: { TaskInput },
+  props: ["item", "board", "modelValue"],
   data() {
-    return {
-      isEditingItem: false,
-    };
+    return {};
   },
   methods: {
     editItem() {
-      this.isEditingItem = true;
-      this.$nextTick(() => {
-        this.$refs[`item-input-${this.item.id}`].focus();
-      });
+      this.$emit("edit-item");
+      // this.$nextTick(() => {
+      //   this.$refs[`item-input-${this.item.id}`]?.focus();
+      // });
     },
     stopEditing() {
-      this.isEditingItem = false;
+      this.$emit("stop-editing");
+    },
+    isEditingItem(item) {
+      this.$emit("is-editing-item", item);
+    },
+    removeItem(item) {
+      this.$emit("remove-item", item);
     },
   },
 };

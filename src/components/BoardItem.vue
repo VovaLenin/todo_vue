@@ -1,7 +1,7 @@
 <template>
   <li
     class="board"
-    @drop.prevent="dropBoard($event, board)"
+    @drop.prevent="dropBoard(board)"
     @dragover.prevent="dragOver($event)"
   >
     <div class="title-container">
@@ -11,7 +11,16 @@
     <hr />
     <p v-if="board.items.length === 0">Нет активных задач</p>
     <ul>
-      <TaskItem v-for="item in board.items" :key="item.id" />
+      <TaskItem
+        v-for="item in board.items"
+        :item="item"
+        :key="item.id"
+        @edit-item="editItem(item)"
+        @stop-editing="stopEditing"
+        :modelValue="modelValue"
+        @update:modelValue="$emit('update:modelValue', $event)"
+        @is-editing-item="isEditingItem"
+      />
     </ul>
   </li>
 </template>
@@ -23,7 +32,18 @@ export default {
   components: {
     TaskItem,
   },
-  props: ["board"],
+  props: ["board", "modelValue"],
+  methods: {
+    editItem(item) {
+      this.$emit("edit-item", item);
+    },
+    stopEditing() {
+      this.$emit("stop-editing");
+    },
+    isEditingItem(item) {
+      this.$emit("is-editing-item", item);
+    },
+  },
 };
 </script>
 

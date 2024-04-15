@@ -1,6 +1,15 @@
 <template>
   <ul class="board-container">
-    <BoardItem v-for="board in boards" :key="board.id" />
+    <BoardItem
+      v-for="board in boards"
+      :board="board"
+      :key="board.id"
+      @edit-item="editItem"
+      @stop-editing="stopEditing"
+      :modelValue="modelValue"
+      @update:modelValue="$emit('update:modelValue', $event)"
+      @is-editing-item="isEditingItem"
+    />
   </ul>
 </template>
 
@@ -11,8 +20,18 @@ export default {
   components: {
     BoardItem,
   },
-  props: ["boards"],
-  methods: {},
+  props: ["boards", "modelValue"],
+  methods: {
+    editItem(item) {
+      this.$emit("edit-item", item);
+    },
+    stopEditing() {
+      this.$emit("stop-editing");
+    },
+    isEditingItem(item) {
+      this.$emit("is-editing-item", item);
+    },
+  },
 };
 </script>
 
