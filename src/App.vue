@@ -31,6 +31,7 @@
             {{ item.title }}
           </span>
           <TaskInput
+            v-show="isEditingItem(item)"
             :ref="`item-${item.id}`"
             v-model="item.title"
             :item="item"
