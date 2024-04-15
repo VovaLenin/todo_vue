@@ -30,11 +30,6 @@ export default {
     };
   },
   methods: {
-    startDragging() /* ... */,
-    stopDragging() /* ... */,
-    dragOver() /* ... */,
-    dragLeave() /* ... */,
-    drop() /* ... */,
     editItem() {
       this.isEditingItem = true;
       this.$nextTick(() => {
@@ -44,6 +39,11 @@ export default {
     stopEditing() {
       this.isEditingItem = false;
     },
+    dragStart() /* ... */,
+    dragS() /* ... */,
+    dragOver() /* ... */,
+    dragLeave() /* ... */,
+    drop() /* ... */,
   },
 };
 </script>

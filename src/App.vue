@@ -1,6 +1,5 @@
 <template>
   <h1 class="page-title">Список дел</h1>
-  <!-- <TodoList v-bind:todos="todos" @remove-todo="removeTodo" /> -->
   <ul class="board-container">
     <li
       class="board"
@@ -31,12 +30,12 @@
           <span v-if="!isEditingItem(item)">
             {{ item.title }}
           </span>
-          <input
-            v-show="isEditingItem(item)"
+          <TaskInput
+            :ref="`item-${item.id}`"
             v-model="item.title"
-            :ref="`item-input-${item.id}`"
-            @keydown.enter="stopEditing"
-            @blur="stopEditing"
+            :item="item"
+            @is-editing-item="isEditingItem(item)"
+            @stop-editing="stopEditing()"
           />
           <button class="remove-button" @click="removeItem(item, board)">
             &times;
@@ -48,33 +47,12 @@
 </template>
 
 <script>
-// import TodoList from "@/components/TodoList";
-// export default {
-//   name: "App",
-//   data() {
-//     return {
-//       todos: [
-//         {
-//           id: 1,
-//           title: "Встать раньше кота",
-//           completed: false,
-//         },
-//         { id: 2, title: "Завидовать коту", completed: false },
-//         { id: 3, title: "Разбудить кота", completed: false },
-//         { id: 4, title: "Блаженно лечь спать", completed: false },
-//       ],
-//     };
-//   },
-//   components: {
-//     TodoList,
-//   },
-//   methods: {
-//     removeTodo(id) {
-//       this.todos = this.todos.filter((todo) => todo.id !== id);
-//     },
-//   },
-// };
+import TaskInput from "@/components/TaskInput";
+
 export default {
+  components: {
+    TaskInput,
+  },
   data() {
     return {
       boards: [
@@ -166,17 +144,23 @@ export default {
       }
     },
     isEditingItem(item) {
+      console.log(this.editingItem === item);
       return this.editingItem === item;
     },
     editItem(item) {
       this.editingItem = item;
-      this.$nextTick(() => {
-        const input = this.$refs[`item-input-${item.id}`];
-        console.log(input);
-        if (input.length !== 0) {
-          input[0].focus();
-        }
-      });
+      console.log(this.editingItem);
+      // const parentRef = this.$refs[`item-${item.id}`];
+      // if (parentRef) {
+      //   this.$nextTick(() => {
+      //     const inputRef = parentRef.$refs[`item-input-${item.id}`];
+      //     if (inputRef) {
+      //       // Делаем что-то с инпутом
+      //       // Например, устанавливаем фокус
+      //       inputRef.focus();
+      //     }
+      //   });
+      // }
     },
     stopEditing() {
       this.editingItem = null;
@@ -206,12 +190,14 @@ export default {
 
 <style>
 @import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap");
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
   /* outline: 1px solid red; */
 }
+
 #app {
   font-family: "Open Sans", sans-serif;
   background-color: #f5f5f5;
@@ -221,6 +207,7 @@ export default {
   display: flex;
   flex-direction: column;
 }
+
 .page-title {
   text-align: center;
   user-select: none;
@@ -239,9 +226,14 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  &:hover .plus-button {
-    display: inline-flex;
-  }
+}
+
+.title-container:hover .plus-button {
+  display: inline-flex;
+}
+
+.title-container:hover .plus-button {
+  display: inline-flex;
 }
 
 .plus-button {
@@ -258,12 +250,14 @@ export default {
   justify-content: center;
   user-select: none;
   transition: background-color 0.3s;
-  &:hover {
-    background-color: #e8e8e8;
-  }
-  &:active {
-    background-color: #707070;
-  }
+}
+
+.plus-button:hover {
+  background-color: #e8e8e8;
+}
+
+.plus-button:active {
+  background-color: #707070;
 }
 
 .board {
@@ -271,10 +265,11 @@ export default {
   margin: 10px;
   padding: 10px;
   min-height: 100px;
-  ul {
-    list-style: none;
-    padding: 0;
-  }
+}
+
+.board ul {
+  list-style: none;
+  padding: 0;
 }
 
 .board-title {
@@ -292,33 +287,34 @@ export default {
   min-height: 36px;
   display: flex;
   justify-content: space-between;
+}
 
-  & input {
-    background: transparent;
-    border: none;
-    width: 100%;
-    font-size: 17px;
-    color: rgb(255, 251, 0);
-    line-height: 1.6;
-  }
+.board-item input {
+  display: block;
+  background: transparent;
+  border: none;
+  width: 100%;
+  font-size: 17px;
+  color: rgb(255, 251, 0);
+  line-height: 1.6;
+}
 
-  .remove-button {
-    display: none;
-    width: 25px;
-    height: 25px;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    font-size: 25px;
-    color: red;
-  }
+.remove-button {
+  display: none;
+  width: 25px;
+  height: 25px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 25px;
+  color: red;
+}
 
-  &:hover .remove-button {
-    display: block;
-  }
+.board-item:hover .remove-button {
+  display: block;
+}
 
-  &:active {
-    cursor: grabbing;
-  }
+.board-item:active {
+  cursor: grabbing;
 }
 </style>
