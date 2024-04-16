@@ -6,6 +6,14 @@
     @edit-item="editItem"
     @stop-editing="stopEditing"
     @is-editing-item="isEditingItem"
+    @remove-item="removeItem"
+    @add-item="addItem"
+    @drag-start="dragStart"
+    @drag-end="dragEnd"
+    @drag-over="dragOver"
+    @drag-leave="dragLeave"
+    @drop="drop"
+    @drop-board="dropBoard"
   />
 </template>
 
@@ -48,7 +56,7 @@ export default {
     };
   },
   methods: {
-    dragStart(board, item) {
+    dragStart({ board, item }) {
       this.currentBoard = board;
       this.currentItem = item;
     },
@@ -77,7 +85,7 @@ export default {
         this.lastDraggedOverElement = null;
       }
     },
-    drop(event, board, item) {
+    drop({ event, board, item }) {
       if (this.currentItem) {
         event.stopPropagation();
         this.currentBoard.items = this.currentBoard.items.filter(
@@ -115,7 +123,8 @@ export default {
     stopEditing() {
       this.editingItem = null;
     },
-    removeItem(item, board) {
+    removeItem({ item, board }) {
+      console.log(board);
       const index = board.items.indexOf(item);
       if (index !== -1) {
         board.items.splice(index, 1);

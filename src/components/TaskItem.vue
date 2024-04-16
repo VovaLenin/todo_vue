@@ -17,9 +17,12 @@
       :modelValue="modelValue"
       @update:modelValue="$emit('update:modelValue', $event)"
       :id="item.id"
+      ref="`item-${id}`"
       @stop-editing="stopEditing"
     />
-    <button class="remove-button" @click="removeItem(item)">&times;</button>
+    <button class="remove-button" @click="removeItem(item, board)">
+      &times;
+    </button>
   </li>
 </template>
 
@@ -45,8 +48,23 @@ export default {
     isEditingItem(item) {
       this.$emit("is-editing-item", item);
     },
-    removeItem(item) {
-      this.$emit("remove-item", item);
+    removeItem(item, board) {
+      this.$emit("remove-item", { item, board });
+    },
+    dragStart(board, item) {
+      this.$emit("drag-start", { board, item });
+    },
+    dragEnd(event) {
+      this.$emit("drag-end", event);
+    },
+    dragOver(event) {
+      this.$emit("drag-over", event);
+    },
+    dragLeave(event) {
+      this.$emit("drag-leave", event);
+    },
+    drop(event, board, item) {
+      this.$emit("drop", { event, board, item });
     },
   },
 };

@@ -14,12 +14,19 @@
       <TaskItem
         v-for="item in board.items"
         :item="item"
+        :board="board"
         :key="item.id"
         @edit-item="editItem(item)"
         @stop-editing="stopEditing"
         :modelValue="modelValue"
         @update:modelValue="$emit('update:modelValue', $event)"
         @is-editing-item="isEditingItem"
+        @remove-item="removeItem"
+        @drag-start="dragStart"
+        @drag-end="dragEnd"
+        @drag-over="dragOver"
+        @drag-leave="dragLeave"
+        @drop="drop"
       />
     </ul>
   </li>
@@ -42,6 +49,30 @@ export default {
     },
     isEditingItem(item) {
       this.$emit("is-editing-item", item);
+    },
+    removeItem(payload) {
+      this.$emit("remove-item", payload);
+    },
+    addItem(board) {
+      this.$emit("add-item", board);
+    },
+    dragStart(payload) {
+      this.$emit("drag-start", payload);
+    },
+    dragEnd(event) {
+      this.$emit("drag-end", event);
+    },
+    dragOver(event) {
+      this.$emit("drag-over", event);
+    },
+    dragLeave(event) {
+      this.$emit("drag-leave", event);
+    },
+    drop(payload) {
+      this.$emit("drop", payload);
+    },
+    dropBoard(board) {
+      this.$emit("drop-board", board);
     },
   },
 };

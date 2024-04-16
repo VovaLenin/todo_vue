@@ -9,6 +9,14 @@
       :modelValue="modelValue"
       @update:modelValue="$emit('update:modelValue', $event)"
       @is-editing-item="isEditingItem"
+      @remove-item="removeItem"
+      @add-item="addItem"
+      @drag-start="dragStart"
+      @drag-end="dragEnd"
+      @drag-over="dragOver"
+      @drag-leave="dragLeave"
+      @drop="drop"
+      @drop-board="dropBoard"
     />
   </ul>
 </template>
@@ -30,6 +38,30 @@ export default {
     },
     isEditingItem(item) {
       this.$emit("is-editing-item", item);
+    },
+    removeItem(payload) {
+      this.$emit("remove-item", payload);
+    },
+    addItem(board) {
+      this.$emit("add-item", board);
+    },
+    dragStart(payload) {
+      this.$emit("drag-start", payload);
+    },
+    dragEnd(event) {
+      this.$emit("drag-end", event);
+    },
+    dragOver(event) {
+      this.$emit("drag-over", event);
+    },
+    dragLeave(event) {
+      this.$emit("drag-leave", event);
+    },
+    drop(payload) {
+      this.$emit("drop", payload);
+    },
+    dropBoard(board) {
+      this.$emit("drop-board", board);
     },
   },
 };
